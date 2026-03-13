@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Picks NFL — Semanal</title>
+
+<style>
+  :root {
+    --bg: #1c1c1c;        /* gris Oxford */
+    --panel: #2b2b2b;
+    --muted: #aeb7bf;
+    --accent1: #013369;   /* azul NFL */
+    --accent2: #d50a0a;   /* rojo NFL */
+  }
+
+  body {
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: #fff;
+  }
+
+  /* ░░░ BARRA SUPERIOR ░░░ */
+  header {
+    background: linear-gradient(to right, var(--accent1), var(--accent2));
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 16px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  header .left {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  header img.nfl {
+    height:48px;
+    filter: drop-shadow(2px 2px 4px #000);
+  }
+
+  header .right {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;         /* 📌 Hace que no se salgan si falta espacio */
+  justify-content:flex-end;
+  max-width:70%;          /* 📌 Evita que los botones empujen la barra */
+}
+
+header button,
+header select {
+  padding:6px 12px;
+  border-radius:6px;
+  border:none;
+  font-size:14px;
+  white-space:nowrap;     /* 📌 No se rompen los botones en 2 líneas */
+}
+
+  header select,
+  header button {
+    padding:6px 10px;
+    border-radius:6px;
+    border:none;
+    font-size:15px;
+  }
+
+  header button {
+    background:#fff;
+    color:#000;
+    cursor:pointer;
+  }
+
+  #descargarImg {
+    background:#0d0d0d;
+    color:#fff;
+    border:2px solid #fff;
+    font-weight:bold;
+  }
+
+  .aciertos {
+    background: rgba(255,255,255,0.18);
+    padding:6px 10px;
+    border-radius:8px;
+    font-weight:700;
+  }
+
+  main {
+    max-width:900px;
+    margin:18px auto;
+    padding:10px;
+    box-sizing:border-box;
+  }
+
+  /* ░░░ JUEGOS ░░░ */
+  .juego {
+    background: var(--panel);
+    border:1px solid #404040;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:12px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  /* ░░░ Equipos en HORIZONTAL ░░░ */
+  .equipos {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:nowrap;
+  }
+
+  .equipo {
+    width:42%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+    gap:6px;
+  }
+
+  .selector-equipo {
+    background:#3a3a3a;
+    color:#fff;
+    border:1px solid #555;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+
+  .nombre-equipo {
+    min-height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .nombre-equipo img.logo {
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    filter: drop-shadow(1px 1px 3px rgba(0,0,0,0.7));
+  }
+
+  /* ░░░ MENU desplegable ░░░ */
+  .menu-equipos {
+    display:none;
+    position:absolute;
+    top:46px;
+    left:0;
+    background:#272727;
+    border:1px solid #444;
+    width:220px;
+    max-height:220px;
+    overflow:auto;
+    border-radius:8px;
+    padding:6px 4px;
+    z-index:60;
+  }
+
+  .menu-equipos.activo {
+    display:block;
+  }
+
+  .item-equipo {
+    padding:8px 10px;
+    cursor:pointer;
+    color:#e6e6e6;
+    border-radius:6px;
+  }
+
+  .item-equipo:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* ░░░ BOTONES pick ░░░ */
+  .botones {
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:6px;
+  }
+
+  .botones button {
+    background:#3a3a3a;
+    color:#fff;
+    border:1px solid #666;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    min-width:100px;
+  }
+
+  .botones button.activo {
+    background:#0055a4;
+    border:2px solid var(--accent2);
+    font-weight:700;
+  }
+
+  /* ░░░ GANADOR REAL ░░░ */
+  .ganador {
+    display:flex;
+    justify-content:center;
+    margin-top:8px;
+  }
+
+  .ganador select {
+    padding:6px 8px;
+    border-radius:6px;
+    background:#3a3a3a;
+    border:1px solid #555;
+    color:#fff;
+  }
+
+  /* ░░░ BLOQUEO ░░░ */
+  .locked {
+    opacity:0.6;
+    pointer-events:none;
+  }
+
+  .locked .ganador {
+    pointer-events:auto;
+    opacity:1;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="left">
+    <img class="nfl" src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" />
+    <strong style="font-size:18px">Picks Semanal</strong>
+  </div>
+  <div class="right">
+    <select id="semana"></select>
+    <span class="aciertos" id="aciertos">Aciertos: 0</span>
+    <button onclick="reiniciar()">Reiniciar</button>
+    <button id="bloquearBtn" onclick="toggleBloqueo()">Bloquear</button>
+    <button id="descargarImg">Descargar</button>
+  </div>
+</header>
+
+<main id="contenedor"></main>
+  <script>
+/* --------------------
+   Datos iniciales
+-------------------- */
+let bloqueo = JSON.parse(localStorage.getItem("bloqueo")) || false;
+
+const equipos = [
+  "49ers","Bears","Bengals","Bills","Broncos","Browns","Buccaneers","Cardinals","Chargers",
+  "Chiefs","Colts","Commanders","Cowboys","Dolphins","Eagles","Falcons","Giants","Jaguars",
+  "Jets","Lions","Packers","Panthers","Patriots","Raiders","Rams","Ravens","Saints","Seahawks",
+  "Steelers","Texans","Titans","Vikings"
+];
+
+/* LOGOS ESPN */
+const logos = {
+  "49ers":"https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+  "Bears":"https://a.espncdn.com/i/teamlogos/nfl/500/chi.png",
+  "Bengals":"https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",
+  "Bills":"https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
+  "Broncos":"https://a.espncdn.com/i/teamlogos/nfl/500/den.png",
+  "Browns":"https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
+  "Buccaneers":"https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",
+  "Cardinals":"https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",
+  "Chargers":"https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+  "Chiefs":"https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+  "Colts":"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+  "Commanders":"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+  "Cowboys":"https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+  "Dolphins":"https://a.espncdn.com/i/teamlogos/nfl/500/mia.png",
+  "Eagles":"https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
+  "Falcons":"https://a.espncdn.com/i/teamlogos/nfl/500/atl.png",
+  "Giants":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/New_York_Giants_logo.svg/500px-New_York_Giants_logo.svg.png",
+  "Jaguars":"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png",
+  "Jets":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/New_York_Jets_2024.svg/960px-New_York_Jets_2024.svg.png?20240416235614",
+  "Lions":"https://a.espncdn.com/i/teamlogos/nfl/500/det.png",
+  "Packers":"https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+  "Panthers":"https://a.espncdn.com/i/teamlogos/nfl/500/car.png",
+  "Patriots":"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+  "Raiders":"https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+  "Rams":"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+  "Ravens":"https://a.espncdn.com/i/teamlogos/nfl/500/bal.png",
+  "Saints":"https://a.espncdn.com/i/teamlogos/nfl/500/no.png",
+  "Seahawks":"https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
+  "Steelers":"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+  "Texans":"https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",
+  "Titans":"https://1000logos.net/wp-content/uploads/2018/07/Tennessee-Titans-logo-1.png",
+  "Vikings":"https://a.espncdn.com/i/teamlogos/nfl/500/min.png"
+};
+
+const contenedor = document.getElementById("contenedor");
+const semanaSelect = document.getElementById("semana");
+const aciertosDisplay = document.getElementById("aciertos");
+
+/* Llenar semanas */
+for(let s=1; s<=18; s++){
+  const o=document.createElement("option");
+  o.value=s;
+  o.textContent="Semana "+s;
+  semanaSelect.appendChild(o);
+}
+semanaSelect.value = localStorage.getItem("semanaActual") || 1;
+
+/* Construir 16 juegos */
+function crearJuegos(){
+  contenedor.innerHTML="";
+  const semana = semanaSelect.value;
+  const guardado = JSON.parse(localStorage.getItem("semana"+semana)) || [];
+
+  for(let i=1; i<=16; i++){
+    const juego = document.createElement("div");
+    juego.className="juego";
+
+    juego.innerHTML = `
+      <div style="font-weight:700">Juego ${i}</div>
+
+      <div class="equipos">
+        <div class="equipo visitante">
+          <button class="selector-equipo">Elegir</button>
+          <div class="nombre-equipo" data-side="visitante"></div>
+          <div class="menu-equipos"></div>
+        </div>
+
+        <div style="font-weight:700; color:var(--muted)">VS</div>
+
+        <div class="equipo local">
+          <button class="selector-equipo">Elegir</button>
+          <div class="nombre-equipo" data-side="local"></div>
+          <div class="menu-equipos"></div>
+        </div>
+      </div>
+
+      <div class="botones">
+        <button class="btnVisitante">Visitante</button>
+        <button class="btnEmpate">Empate</button>
+        <button class="btnLocal">Local</button>
+      </div>
+
+      <div class="ganador">
+        <select class="ganador-select">
+          <option value="">Ganador real</option>
+        </select>
+      </div>
+    `;
+
+    contenedor.appendChild(juego);
+
+    const selBtnVis=juego.querySelector(".visitante .selector-equipo");
+    const visNombre=juego.querySelector(".visitante .nombre-equipo");
+    const menuVis=juego.querySelector(".visitante .menu-equipos");
+
+    const selBtnLoc=juego.querySelector(".local .selector-equipo");
+    const locNombre=juego.querySelector(".local .nombre-equipo");
+    const menuLoc=juego.querySelector(".local .menu-equipos");
+
+    const btnVis=juego.querySelector(".btnVisitante");
+    const btnEmp=juego.querySelector(".btnEmpate");
+    const btnLoc=juego.querySelector(".btnLocal");
+    const selGan=juego.querySelector(".ganador-select");
+
+    /* Agregar opciones a los menús */
+    equipos.forEach(eq=>{
+      let item1=document.createElement("div");
+      item1.className="item-equipo";
+      item1.dataset.team=eq;
+      item1.textContent=eq;
+      menuVis.appendChild(item1);
+
+      let item2=item1.cloneNode(true);
+      menuLoc.appendChild(item2);
+
+      let opt=document.createElement("option");
+      opt.value=eq;
+      opt.textContent=eq;
+      selGan.appendChild(opt);
+    });
+
+    /* Cargar datos guardados */
+    const datos = guardado[i-1] || {};
+
+    if(datos.visitante){
+      visNombre.innerHTML = `<img class="logo" src="${logos[datos.visitante]}" />`;
+    }
+    if(datos.local){
+      locNombre.innerHTML = `<img class="logo" src="${logos[datos.local]}" />`;
+    }
+
+    selGan.value = datos.ganador || "";
+
+    if(datos.pick){
+      if(datos.pick==="Local") btnLoc.classList.add("activo");
+      if(datos.pick==="Visitante") btnVis.classList.add("activo");
+      if(datos.pick==="Empate") btnEmp.classList.add("activo");
+    }
+
+    /* Guardar */
+    function guardar(){
+      const dataSemana = JSON.parse(localStorage.getItem("semana"+semana)) || [];
+      dataSemana[i-1] = {
+        local: locNombre.querySelector("img") ? getTeamFromImg(locNombre.querySelector("img").src) : "",
+        visitante: visNombre.querySelector("img") ? getTeamFromImg(visNombre.querySelector("img").src) : "",
+        ganador: selGan.value || "",
+        pick: dataSemana[i-1]?.pick || null
+      };
+      localStorage.setItem("semana"+semana, JSON.stringify(dataSemana));
+      calcularAciertos();
+    }
+
+    function guardarPick(p){
+      const dataSemana = JSON.parse(localStorage.getItem("semana"+semana)) || [];
+      dataSemana[i-1] = {
+        local: locNombre.querySelector("img") ? getTeamFromImg(locNombre.querySelector("img").src) : "",
+        visitante: visNombre.querySelector("img") ? getTeamFromImg(visNombre.querySelector("img").src) : "",
+        ganador: selGan.value || "",
+        pick: p
+      };
+      localStorage.setItem("semana"+semana, JSON.stringify(dataSemana));
+      calcularAciertos();
+    }
+
+    /* Eventos */
+    selBtnVis.onclick = e => { e.stopPropagation(); if(!bloqueo){ menuVis.classList.toggle("activo"); menuLoc.classList.remove("activo"); }};
+    selBtnLoc.onclick = e => { e.stopPropagation(); if(!bloqueo){ menuLoc.classList.toggle("activo"); menuVis.classList.remove("activo"); }};
+
+    menuVis.querySelectorAll(".item-equipo").forEach(item=>{
+      item.onclick=()=>{
+        if(bloqueo) return;
+        const t=item.dataset.team;
+        visNombre.innerHTML=`<img class="logo" src="${logos[t]}">`;
+        menuVis.classList.remove("activo");
+        guardar();
+      };
+    });
+
+    menuLoc.querySelectorAll(".item-equipo").forEach(item=>{
+      item.onclick=()=>{
+        if(bloqueo) return;
+        const t=item.dataset.team;
+        locNombre.innerHTML=`<img class="logo" src="${logos[t]}">`;
+        menuLoc.classList.remove("activo");
+        guardar();
+      };
+    });
+
+    document.addEventListener("click", e=>{
+      if(!juego.contains(e.target)){
+        menuVis.classList.remove("activo");
+        menuLoc.classList.remove("activo");
+      }
+    });
+
+    btnLoc.onclick=()=>{ if(!bloqueo){ btnLoc.classList.add("activo"); btnVis.classList.remove("activo"); btnEmp.classList.remove("activo"); guardarPick("Local"); }};
+    btnVis.onclick=()=>{ if(!bloqueo){ btnVis.classList.add("activo"); btnLoc.classList.remove("activo"); btnEmp.classList.remove("activo"); guardarPick("Visitante"); }};
+    btnEmp.onclick=()=>{ if(!bloqueo){ btnEmp.classList.add("activo"); btnLoc.classList.remove("activo"); btnVis.classList.remove("activo"); guardarPick("Empate"); }};
+
+    selGan.onchange=()=>guardar();
+  }
+
+  aplicarBloqueo();
+  calcularAciertos();
+}
+
+/* Obtener equipo desde URL del logo */
+function getTeamFromImg(src){
+  for(const t in logos){
+    if(src.includes(logos[t])) return t;
+  }
+  return "";
+}
+
+/* Aciertos (empate NO suma) */
+function calcularAciertos(){
+  const semana=semanaSelect.value;
+  const d=JSON.parse(localStorage.getItem("semana"+semana))||[];
+  let ac=0;
+  d.forEach(j=>{
+    if(!j) return;
+    if(j.pick && j.ganador){
+      if(j.pick==="Local" && j.local===j.ganador) ac++;
+      if(j.pick==="Visitante" && j.visitante===j.ganador) ac++;
+    }
+  });
+  aciertosDisplay.textContent="Aciertos: "+ac;
+}
+
+/* Bloqueo */
+function aplicarBloqueo(){
+  document.querySelectorAll(".juego").forEach(j=>{
+    if(bloqueo){
+      j.classList.add("locked");
+      j.querySelectorAll("button.selector-equipo, .botones button").forEach(b=>b.disabled=true);
+      j.querySelector(".ganador-select").disabled=false;
+    }else{
+      j.classList.remove("locked");
+      j.querySelectorAll("button.selector-equipo, .botones button").forEach(b=>b.disabled=false);
+      j.querySelector(".ganador-select").disabled=false;
+    }
+  });
+  document.getElementById("bloquearBtn").textContent = bloqueo ? "Bloqueado" : "Bloquear";
+  semanaSelect.disabled = bloqueo;
+}
+
+function toggleBloqueo(){
+  bloqueo = !bloqueo;
+  localStorage.setItem("bloqueo", JSON.stringify(bloqueo));
+  aplicarBloqueo();
+}
+
+/* Reiniciar semana */
+function reiniciar(){
+  if(!confirm("¿Reiniciar datos de esta semana?")) return;
+  localStorage.removeItem("semana"+semanaSelect.value);
+  bloqueo=false;
+  localStorage.removeItem("bloqueo");
+  crearJuegos();
+}
+
+semanaSelect.onchange=()=>{
+  localStorage.setItem("semanaActual", semanaSelect.value);
+  crearJuegos();
+};
+
+/* Descargar imagen */
+document.getElementById("descargarImg").onclick = async ()=>{
+  const target=document.querySelector("main");
+  const canvas=await html2canvas(target,{scale:2,useCORS:true,backgroundColor:null});
+  const link=document.createElement("a");
+  link.download=`picks_semana_${semanaSelect.value}.png`;
+  link.href=canvas.toDataURL();
+  link.click();
+};
+
+/* iniciar */
+crearJuegos();
+aplicarBloqueo();
+</script>
+  <!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+</html>
