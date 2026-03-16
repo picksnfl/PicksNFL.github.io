@@ -524,16 +524,16 @@ async function ponerEquiposReales() {
       imgVis.width = 64;
       visDiv.appendChild(imgVis);
     }
-    imgVis.src = visitante.team.logo;
+    imgVis.src = visitante.team.abbreviation + ".png";
 
-    let imgLoc = locDiv.querySelector("img");
-    if (!imgLoc) {
-      imgLoc = document.createElement("img");
-      imgLoc.className = "logo";
-      imgLoc.width = 64;
-      locDiv.appendChild(imgLoc);
-    }
-    imgLoc.src = local.team.logo;
+let imgLoc = locDiv.querySelector("img");
+if (!imgLoc) {
+  imgLoc = document.createElement("img");
+  imgLoc.className = "logo";
+  imgLoc.width = 64;
+  locDiv.appendChild(imgLoc);
+}
+imgLoc.src = local.team.abbreviation + ".png";
 
     // ─── Actualizar marcador y estado ───
     const scoreVis = Number(visitante.score) || 0;
@@ -642,6 +642,19 @@ setInterval(ponerEquiposReales,30000);
 calcularAciertos();
 
 aplicarBloqueo();
+
+// --------------------
+// DESCARGAR IMAGEN
+// --------------------
+document.getElementById("descargarImg").addEventListener("click", () => {
+  html2canvas(document.querySelector("main")).then(canvas => {
+    const link = document.createElement("a");
+    link.download = `picks_semana${semanaSelect.value}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+});
+    
 </script>
 
   <!-- html2canvas -->  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  </body>  
