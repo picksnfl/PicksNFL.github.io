@@ -606,27 +606,44 @@ if(bloqueo){
 
 }
   
-  function reiniciar() {
+function reiniciar() {
   const semana = semanaSelect.value;
-  bloqueo = false;  // 🔹 desbloquear los botones
-  localStorage.removeItem("semana"+semana); // borra los picks de la semana actual
+
+  bloqueo = false;
+
+  // 🔥 limpiar datos
+  localStorage.removeItem("semana"+semana);
+  localStorage.removeItem("bloqueo");
+
   crearJuegos();
   ponerEquiposReales();
   calcularAciertos();
-  aplicarBloqueo(); // 🔹 actualizar clases CSS según bloqueo
+  aplicarBloqueo();
 
+  // 🔥 REACTIVAR BOTÓN
+  const btn = document.getElementById("bloquearBtn");
+  btn.disabled = false;
+  btn.style.opacity = 1;
+  btn.style.cursor = "pointer";
 }
   
 function bloquear() {
-  bloqueo = true; // solo bloquea
+
+  bloqueo = !bloqueo; // 🔥 ahora es toggle
+
   localStorage.setItem("bloqueo", JSON.stringify(bloqueo));
   aplicarBloqueo();
 
-  // Opcional: desactivar el botón para que no se pueda hacer clic otra vez
   const btn = document.getElementById("bloquearBtn");
-  btn.disabled = true;
-  btn.style.opacity = 0.6;
-  btn.style.cursor = "not-allowed";
+
+  if(bloqueo){
+    btn.textContent = "Bloqueado";
+    btn.style.opacity = 0.6;
+  }else{
+    btn.textContent = "Bloquear";
+    btn.style.opacity = 1;
+  }
+
 }
   
 /* --------------------
