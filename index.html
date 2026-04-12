@@ -590,20 +590,26 @@ BLOQUEO
 
 function aplicarBloqueo(){
 
-document.querySelectorAll(".juego").forEach(j=>{
+  document.querySelectorAll(".juego").forEach(j=>{
 
-if(bloqueo){  
+    if(bloqueo){  
+      j.classList.add("locked");  
+    }else{  
+      j.classList.remove("locked");  
+    }
 
-  j.classList.add("locked");  
+  });
 
-}else{  
+  // 🔥 sincronizar botón SIEMPRE
+  const btn = document.getElementById("bloquearBtn");
 
-  j.classList.remove("locked");  
-
-}
-
-});
-
+  if(bloqueo){
+    btn.textContent = "Desbloquear";
+    btn.style.opacity = 0.6;
+  }else{
+    btn.textContent = "Bloquear";
+    btn.style.opacity = 1;
+  }
 }
   
 function reiniciar() {
@@ -622,29 +628,30 @@ function reiniciar() {
 
   // 🔥 REACTIVAR BOTÓN
   const btn = document.getElementById("bloquearBtn");
-  btn.disabled = false;
-  btn.style.opacity = 1;
-  btn.style.cursor = "pointer";
+
+btn.disabled = false;
+btn.style.opacity = 1;
+btn.style.cursor = "pointer";
+btn.textContent = "Bloquear";
 }
   
 function bloquear() {
-
-  bloqueo = !bloqueo; // 🔥 ahora es toggle
+  bloqueo = true; // 🔥 SIEMPRE se bloquea
 
   localStorage.setItem("bloqueo", JSON.stringify(bloqueo));
+
   aplicarBloqueo();
 
   const btn = document.getElementById("bloquearBtn");
 
-  if(bloqueo){
-    btn.textContent = "Bloqueado";
-    btn.style.opacity = 0.6;
-  }else{
-    btn.textContent = "Bloquear";
-    btn.style.opacity = 1;
-  }
-
+  // 🔒 desactivar botón para que no se vuelva a usar
+  btn.disabled = true;
+  btn.style.opacity = 0.6;
+  btn.style.cursor = "not-allowed";
+  btn.textContent = "Bloqueado";
 }
+
+
   
 /* --------------------
 INICIO
