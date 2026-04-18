@@ -836,7 +836,7 @@ if(possession === visitante.team.abbreviation){
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
 
       <div style="text-align:center">
-        <img src="${visitante.team.abbreviation}.png" width="80">
+        <img src="${visitante.team.abbreviation}.png" width="60">
         <div style="font-size:11px;color:${possession === visitante.team.abbreviation ? '#0f0' : '#aaa'}">
           ${possession === visitante.team.abbreviation ? "🏈" : ""}
         </div>
@@ -845,7 +845,7 @@ if(possession === visitante.team.abbreviation){
       <div style="font-weight:700">${game.shortName.replace("@", "   vs   ")}</div>
 
       <div style="text-align:center">
-        <img src="${local.team.abbreviation}.png" width="40">
+        <img src="${local.team.abbreviation}.png" width="60">
         <div style="font-size:11px;color:${possession === local.team.abbreviation ? '#0f0' : '#aaa'}">
           ${possession === local.team.abbreviation ? "🏈" : ""}
         </div>
