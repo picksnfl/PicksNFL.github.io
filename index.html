@@ -796,12 +796,16 @@ cargarVistaTiempoReal();
   let firstDownYard = null;
 
 if(situ.downDistanceText){
-  const match = situ.downDistanceText.match(/& (\d+)/);
-  if(match){
-    const distancia = parseInt(match[1]);
-    firstDownYard = (situ.yardLine || 50) + distancia;
+  const partes = situ.downDistanceText.split("&");
+  
+  if(partes.length > 1){
+    const distancia = parseInt(partes[1]);
+    
+    if(!isNaN(distancia)){
+      firstDownYard = (situ.yardLine || 50) + distancia;
+    }
   }
-}  
+}
   const down = situ.downDistanceText || "";
   const equipo = situ.possession || "";
   const yard = situ.yardLine || 50;
@@ -815,19 +819,27 @@ const visitante = compo.competitors.find(t => t.homeAway === "away");
 // invertir si el balón es del visitante
 let yardaFinal = yard;
 
-if(possession === visitante.team.abbreviation){
-  yardaFinal = 100 - yard;
 
-  if(firstDownYard !== null){
-    firstDownYard = 100 - firstDownYard;
-  }
-}
 
   // 🔄 Si ya existe → mover balón
   if(document.getElementById(`balon-${i}`)){
-    moverBalon(i, yard);
-    return;
+
+  moverBalon(i, yardaFinal);
+
+  // 🔵 mover línea de scrimmage
+  const scrimmage = document.getElementById(`scrimmage-${i}`);
+  if(scrimmage){
+    scrimmage.style.left = (yardaFinal) + "%";
   }
+
+  // 🟡 mover línea de first down
+  const first = document.getElementById(`first-${i}`);
+  if(first && firstDownYard !== null){
+    first.style.left = (firstDownYard) + "%";
+  }
+
+  return;
+}
 
   // 🆕 Si no existe → crear campo
   vista.innerHTML += `
@@ -876,7 +888,7 @@ if(possession === visitante.team.abbreviation){
 }
   
 /* --------------------
-    INICIO
+INICIO
 -------------------- */
 
 crearJuegos();
