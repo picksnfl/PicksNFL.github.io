@@ -731,25 +731,84 @@ cargarVistaTiempoReal();
   return `
     <div style="position:relative;width:100%;height:100px;background:#0a5c2f;border-radius:6px;overflow:hidden">
 
-      <!-- líneas de yardas -->
-      ${[10,20,30,40,50,60,70,80,90].map(y=>`
-        <div style="
-          position:absolute;
-          left:${y}%;
-          top:0;
-          bottom:0;
-          width:2px;
-          background:rgba(255,255,255,0.2);
-        "></div>
-      `).join("")}
+      <!-- líneas + números -->
+${[10,20,30,40,50,40,30,20,10].map((num, index)=>`
+  
+  <!-- línea -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:rgba(255,255,255,0.25);
+  "></div>
 
+  <!-- número arriba -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    top:4px;
+    transform:translateX(-50%);
+    font-size:10px;
+    color:rgba(255,255,255,0.45);
+    font-weight:bold;
+  ">
+    ${num}
+  </div>
+
+    
+    
+  <!-- número abajo -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    bottom:4px;
+    transform:translateX(-50%) rotate(180deg);
+    font-size:10px;
+    color:rgba(255,255,255,0.45);
+    font-weight:bold;
+  ">
+    ${num}
+  </div>
+`).join("")}
+
+    <!-- líneas pequeñas -->
+${Array.from({length:99}, (_,i)=>i+1).map(y=>`
+
+  ${y % 10 !== 0 ? `
+
+    <!-- línea arriba -->
+    <div style="
+      position:absolute;
+      left:${y}%;
+      top:0;
+      width:1px;
+      height:12px;
+      background:rgba(255,255,255,0.18);
+    "></div>
+
+    <!-- línea abajo -->
+    <div style="
+      position:absolute;
+      left:${y}%;
+      bottom:0;
+      width:1px;
+      height:12px;
+      background:rgba(255,255,255,0.18);
+    "></div>
+
+  ` : ""}
+
+`).join("")}
+    
       <!-- 🔵 línea de scrimmage -->
       <div id="scrimmage-${idJuego}" style="
         position:absolute;
         left:${pos}%;
         top:0;
         bottom:0;
-        width:3px;
+        width:1.5px;
         background:#00aaff;
         box-shadow:0 0 6px #00aaff;
       "></div>
@@ -761,7 +820,7 @@ cargarVistaTiempoReal();
           left:${posFirst}%;
           top:0;
           bottom:0;
-          width:3px;
+          width:1.5px;
           background:yellow;
           box-shadow:0 0 6px yellow;
         "></div>
@@ -787,7 +846,7 @@ cargarVistaTiempoReal();
 
   vista.innerHTML = "<h2>Tiempo Real</h2>";
 
-  const juegos = await obtenerJuegosSemana();
+ const juegos = await obtenerJuegosSemana();
 
   juegos.forEach((game, i)=>{
 
@@ -900,6 +959,7 @@ setInterval(ponerEquiposReales,30000);
 calcularAciertos();
 
 aplicarBloqueo();
+  
 
 // --------------------
 // DESCARGAR IMAGEN
