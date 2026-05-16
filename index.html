@@ -496,23 +496,25 @@ ESPN API
 
 async function obtenerJuegosSemana(){
 
-try{
+  try{
 
-const res = await fetch(  
-"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week="+semanaSelect.value  
-);  
+    const yearActual = new Date().getFullYear();
 
-const data = await res.json();  
+    const res = await fetch(
+      "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&year=" + yearActual + "&week=" + semanaSelect.value
+    );
 
-return data.events;
+    const data = await res.json();
 
-}catch(e){
+    return data.events;
 
-console.log("Error ESPN");  
+  }catch(e){
 
-return [];
+    console.log("Error ESPN", e);
 
-}
+    return [];
+
+  }
 
 }
 
@@ -783,9 +785,12 @@ ${Array.from({length:99}, (_,i)=>i+1).map(y=>`
       position:absolute;
       left:${y}%;
       top:0;
-      width:1px;
-      height:12px;
-      background:rgba(255,255,255,0.18);
+
+      width:${y % 5 === 0 ? "2px" : "1px"};
+
+      height:${y % 5 === 0 ? "78px" : "12px"};
+
+      background:rgba(255,255,255,${y % 5 === 0 ? "0.35" : "0.18"});
     "></div>
 
     <!-- línea abajo -->
@@ -793,9 +798,12 @@ ${Array.from({length:99}, (_,i)=>i+1).map(y=>`
       position:absolute;
       left:${y}%;
       bottom:0;
-      width:1px;
-      height:12px;
-      background:rgba(255,255,255,0.18);
+
+      width:${y % 5 === 0 ? "2px" : "1px"};
+
+      height:${y % 5 === 0 ? "22px" : "12px"};
+
+      background:rgba(255,255,255,${y % 5 === 0 ? "0.35" : "0.18"});
     "></div>
 
   ` : ""}
