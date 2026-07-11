@@ -281,6 +281,46 @@ header select {
   left:50%;
 }
   
+  /* 🤝 Animación del empate */
+.emojiEmpate{
+    animation: empateAnim 1.4s infinite ease-in-out;
+}
+
+@keyframes empateAnim{
+
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+    50%{
+        transform:scale(1.25);
+        opacity:.7;
+    }
+
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+}
+  
+  /* 🥇 Logo ganador */
+.logoGanador{
+    filter:
+        drop-shadow(0 0 5px gold)
+        drop-shadow(0 0 10px gold)
+        drop-shadow(0 0 16px gold);
+}
+
+/* 🤝 Logos empate */
+.logoEmpate{
+    filter:
+        drop-shadow(0 0 5px silver)
+        drop-shadow(0 0 10px silver)
+        drop-shadow(0 0 16px silver);
+}
+  
 </style>  </head>  <body>  <header>  
   <div class="left">  
     <img class="nfl" src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" />  
@@ -377,19 +417,33 @@ juego.innerHTML=`
 <div class="ganador">
   <div class="estadoJuego" style="text-align:center">
 
-    <div class="tituloEstado" style="font-size:13px;color:#bbb;">
-      Posesión
-    </div>
+  <div class="tituloEstado" style="font-size:13px;color:#bbb;">
+    Posesión
+  </div>
 
-    <img class="logoEstado"
+  <div class="logosEstado"
+       style="display:flex;justify-content:center;align-items:center;gap:8px;margin:6px 0;">
+
+    <img class="logoEstado1"
          src=""
-         style="width:60px;height:60px;display:none;margin:6px auto;">
+         style="width:60px;height:60px;display:none;">
 
-    <div class="nombreEstado"
-         style="font-weight:bold;font-size:15px;">
-    </div>
+    <span class="emojiEmpate"
+          style="display:none;font-size:24px;">
+      🤝
+    </span>
+
+    <img class="logoEstado2"
+         src=""
+         style="width:60px;height:60px;display:none;">
 
   </div>
+
+  <div class="nombreEstado"
+       style="font-weight:bold;font-size:15px;">
+  </div>
+
+</div>
 </div>
 `;  
 
@@ -557,8 +611,12 @@ async function ponerEquiposReales() {
     const marcador = juegosPagina[i].querySelector(".marcador");
     const driveDiv = juegosPagina[i].querySelector(".drive");
     const tituloEstado = juegosPagina[i].querySelector(".tituloEstado");
-    const logoEstado = juegosPagina[i].querySelector(".logoEstado");
+    const logoEstado1 = juegosPagina[i].querySelector(".logoEstado1");
+    const logoEstado2 = juegosPagina[i].querySelector(".logoEstado2");
+    const emojiEmpate = juegosPagina[i].querySelector(".emojiEmpate");
     const nombreEstado = juegosPagina[i].querySelector(".nombreEstado");
+    logoEstado1.classList.remove("logoGanador","logoEmpate");
+    logoEstado2.classList.remove("logoGanador","logoEmpate");
     // ─── Actualizar logos SIN tocar botones ───
     let imgVis = visDiv.querySelector("img");
     if (!imgVis) {
@@ -585,40 +643,76 @@ imgLoc.src = local.team.abbreviation + ".png";
     const reloj = comp.status.displayClock;
     const periodo = comp.status.period;
     const possession = comp.situation?.possession || "";
-
 if (comp.status.type.completed) {
 
   tituloEstado.textContent = "Ganador real";
 
   if (scoreLoc > scoreVis) {
-    logoEstado.src = local.team.abbreviation + ".png";
+
+    logoEstado1.src = local.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+    logoEstado1.classList.add("logoGanador")
+    
+    logoEstado2.style.display = "none";
+    emojiEmpate.style.display = "none";
+
     nombreEstado.textContent = local.team.displayName;
+
   } else if (scoreVis > scoreLoc) {
-    logoEstado.src = visitante.team.abbreviation + ".png";
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+     logoEstado1.classList.add("logoGanador")
+    
+    logoEstado2.style.display = "none";
+    emojiEmpate.style.display = "none";
+
     nombreEstado.textContent = visitante.team.displayName;
+
   } else {
-    logoEstado.src = "";
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado2.src = local.team.abbreviation + ".png";
+
+    logoEstado1.style.display = "block";
+    logoEstado2.style.display = "block";
+    logoEstado1.classList.add("logoEmpate");
+    logoEstado2.classList.add("logoEmpate");
+    
+    emojiEmpate.style.display = "inline";
+
     nombreEstado.textContent = "Empate";
+
   }
 
 } else {
 
   tituloEstado.textContent = "Posesión";
 
+  logoEstado2.style.display = "none";
+  emojiEmpate.style.display = "none";
+
   if (possession === local.team.id || possession === local.team.abbreviation) {
-    logoEstado.src = local.team.abbreviation + ".png";
+
+    logoEstado1.src = local.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
     nombreEstado.textContent = local.team.displayName;
+
   } else if (possession === visitante.team.id || possession === visitante.team.abbreviation) {
-    logoEstado.src = visitante.team.abbreviation + ".png";
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
     nombreEstado.textContent = visitante.team.displayName;
+
   } else {
-    logoEstado.src = "";
+
+    logoEstado1.style.display = "none";
     nombreEstado.textContent = "";
+
   }
 
 }
 
-logoEstado.style.display = logoEstado.src ? "block" : "none";
     let live = "";
     if (comp.status.type.state === "in") {
       live = '<span class="live-indicator">🔴 LIVE</span>';
