@@ -374,11 +374,23 @@ juego.innerHTML=`
 
 <div class="drive" style="text-align:center;font-size:12px;color:#aaa"></div>  
 
-<div class="ganador">  
-  <select class="ganador-select">  
-    <option value="">Ganador real</option>  
-  </select>  
-</div>  
+<div class="ganador">
+  <div class="estadoJuego" style="text-align:center">
+
+    <div class="tituloEstado" style="font-size:13px;color:#bbb;">
+      Posesión
+    </div>
+
+    <img class="logoEstado"
+         src=""
+         style="width:60px;height:60px;display:none;margin:6px auto;">
+
+    <div class="nombreEstado"
+         style="font-weight:bold;font-size:15px;">
+    </div>
+
+  </div>
+</div>
 `;  
 
 contenedor.appendChild(juego);  
@@ -387,7 +399,6 @@ const btnVis=juego.querySelector(".btnVisitante");
 const btnLoc=juego.querySelector(".btnLocal");  
 const btnEmp=juego.querySelector(".btnEmpate");  
 console.log("Botones juego", i, btnLoc, btnVis, btnEmp);
-const selGan=juego.querySelector(".ganador-select");  
 
 const datos = guardado[i-1] || {};  
 
@@ -443,22 +454,7 @@ btnEmp.addEventListener("click", () => {
   }
 });
   
-selGan.onchange=()=>{  
 
-  const dataSemana = JSON.parse(localStorage.getItem("semana"+semana)) || [];  
-
-  dataSemana[i-1]={  
-
-    ...dataSemana[i-1],  
-    ganador:selGan.value  
-
-  };  
-
-  localStorage.setItem("semana"+semana,JSON.stringify(dataSemana));  
-
-  calcularAciertos();  
-
-};
 
 }
 
@@ -560,7 +556,9 @@ async function ponerEquiposReales() {
     const locDiv = juegosPagina[i].querySelector(".local .nombre-equipo");
     const marcador = juegosPagina[i].querySelector(".marcador");
     const driveDiv = juegosPagina[i].querySelector(".drive");
-
+    const tituloEstado = juegosPagina[i].querySelector(".tituloEstado");
+    const logoEstado = juegosPagina[i].querySelector(".logoEstado");
+    const nombreEstado = juegosPagina[i].querySelector(".nombreEstado");
     // ─── Actualizar logos SIN tocar botones ───
     let imgVis = visDiv.querySelector("img");
     if (!imgVis) {
@@ -586,7 +584,41 @@ imgLoc.src = local.team.abbreviation + ".png";
     const estado = comp.status.type.description;
     const reloj = comp.status.displayClock;
     const periodo = comp.status.period;
+    const possession = comp.situation?.possession || "";
 
+if (comp.status.type.completed) {
+
+  tituloEstado.textContent = "Ganador real";
+
+  if (scoreLoc > scoreVis) {
+    logoEstado.src = local.team.abbreviation + ".png";
+    nombreEstado.textContent = local.team.displayName;
+  } else if (scoreVis > scoreLoc) {
+    logoEstado.src = visitante.team.abbreviation + ".png";
+    nombreEstado.textContent = visitante.team.displayName;
+  } else {
+    logoEstado.src = "";
+    nombreEstado.textContent = "Empate";
+  }
+
+} else {
+
+  tituloEstado.textContent = "Posesión";
+
+  if (possession === local.team.id || possession === local.team.abbreviation) {
+    logoEstado.src = local.team.abbreviation + ".png";
+    nombreEstado.textContent = local.team.displayName;
+  } else if (possession === visitante.team.id || possession === visitante.team.abbreviation) {
+    logoEstado.src = visitante.team.abbreviation + ".png";
+    nombreEstado.textContent = visitante.team.displayName;
+  } else {
+    logoEstado.src = "";
+    nombreEstado.textContent = "";
+  }
+
+}
+
+logoEstado.style.display = logoEstado.src ? "block" : "none";
     let live = "";
     if (comp.status.type.state === "in") {
       live = '<span class="live-indicator">🔴 LIVE</span>';
