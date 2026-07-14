@@ -1,0 +1,1729 @@
+<!doctype html>
+
+<html lang="es">  
+<head>  
+<meta charset="utf-8" />  
+<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<title>Picks NFL — Semanal</title>  <style>  
+  :root {  
+    --bg: #1c1c1c;        /* gris Oxford */  
+    --panel: #2b2b2b;  
+    --muted: #aeb7bf;  
+    --accent1: #013369;   /* azul NFL */  
+    --accent2: #d50a0a;   /* rojo NFL */  
+  }  
+  
+  body {  
+    margin:0;  
+    font-family: Arial, Helvetica, sans-serif;  
+    background: var(--bg);  
+    color: #fff;  
+  }  
+  
+  /* ░░░ BARRA SUPERIOR ░░░ */  
+  header {  
+    background: linear-gradient(to right, var(--accent1), var(--accent2));  
+    display:flex;  
+    align-items:center;  
+    justify-content:space-between;  
+    padding:10px 16px;  
+    position:sticky;  
+    top:0;  
+    z-index:50;  
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);  
+  }  
+  
+  header .left {  
+    display:flex;  
+    align-items:center;  
+    gap:12px;  
+  }  
+  
+  header img.nfl {  
+    height:48px;  
+    filter: drop-shadow(2px 2px 4px #000);  
+  }  
+  
+  header .right {  
+  display:flex;  
+  align-items:center;  
+  gap:10px;  
+  flex-wrap:wrap;         /* 📌 Hace que no se salgan si falta espacio */  
+  justify-content:flex-end;  
+  max-width:70%;          /* 📌 Evita que los botones empujen la barra */  
+}  
+  
+header button,  
+header select {  
+  padding:6px 12px;  
+  border-radius:6px;  
+  border:none;  
+  font-size:14px;  
+  white-space:nowrap;     /* 📌 No se rompen los botones en 2 líneas */  
+}  
+  
+  header select,  
+  header button {  
+    padding:6px 10px;  
+    border-radius:6px;  
+    border:none;  
+    font-size:15px;  
+  }  
+  
+  header button {  
+    background:#fff;  
+    color:#000;  
+    cursor:pointer;  
+  }  
+  
+  #descargarImg {  
+    background:#0d0d0d;  
+    color:#fff;  
+    border:2px solid #fff;  
+    font-weight:bold;  
+  }  
+  
+  .aciertos {  
+    background: rgba(255,255,255,0.18);  
+    padding:6px 10px;  
+    border-radius:8px;  
+    font-weight:700;  
+  }  
+  
+  main {  
+    max-width:900px;  
+    margin:18px auto;  
+    padding:10px;  
+    box-sizing:border-box;  
+  }  
+  
+  /* ░░░ JUEGOS ░░░ */  
+  .juego {  
+    background: var(--panel);  
+    border:1px solid #404040;  
+    border-radius:10px;  
+    padding:12px;  
+    margin-bottom:12px;  
+    display:flex;  
+    flex-direction:column;  
+    gap:12px;  
+  }  
+  
+  /* ░░░ Equipos en HORIZONTAL ░░░ */  
+  .equipos {  
+    display:flex;  
+    justify-content:space-between;  
+    align-items:center;  
+    gap:12px;  
+    flex-wrap:nowrap;  
+  }  
+  
+  .equipo {  
+    width:42%;  
+    display:flex;  
+    flex-direction:column;  
+    align-items:center;  
+    position:relative;  
+    gap:6px;  
+  }  
+  
+  .selector-equipo {  
+    background:#3a3a3a;  
+    color:#fff;  
+    border:1px solid #555;  
+    padding:6px 10px;  
+    border-radius:6px;  
+    cursor:pointer;  
+  }  
+  
+  .nombre-equipo {  
+    min-height:60px;  
+    display:flex;  
+    align-items:center;  
+    justify-content:center;  
+  }  
+  
+  .nombre-equipo img.logo {  
+    width:64px;  
+    height:64px;  
+    object-fit:contain;  
+    filter: drop-shadow(1px 1px 3px rgba(0,0,0,0.7));  
+  }  
+  
+  /* ░░░ MENU desplegable ░░░ */  
+  .menu-equipos {  
+    display:none;  
+    position:absolute;  
+    top:46px;  
+    left:0;  
+    background:#272727;  
+    border:1px solid #444;  
+    width:220px;  
+    max-height:220px;  
+    overflow:auto;  
+    border-radius:8px;  
+    padding:6px 4px;  
+    z-index:60;  
+  }  
+  
+  .menu-equipos.activo {  
+    display:block;  
+  }  
+  
+  .item-equipo {  
+    padding:8px 10px;  
+    cursor:pointer;  
+    color:#e6e6e6;  
+    border-radius:6px;  
+  }  
+  
+  .item-equipo:hover {  
+    background: rgba(255,255,255,0.05);  
+  }  
+  
+  /* ░░░ BOTONES pick ░░░ */  
+  .botones {  
+    display:flex;  
+    justify-content:center;  
+    gap:8px;  
+    margin-top:6px;  
+  }  
+  
+  .botones button {  
+    background:#3a3a3a;  
+    color:#fff;  
+    border:1px solid #666;  
+    padding:8px 10px;  
+    border-radius:8px;  
+    cursor:pointer;  
+    min-width:100px;  
+  }  
+  
+  .botones button.activo {  
+    background:#0055a4;  
+    border:2px solid var(--accent2);  
+    font-weight:700;  
+  }  
+  
+  /* ░░░ GANADOR REAL ░░░ */  
+  .ganador {  
+    display:flex;  
+    justify-content:center;  
+    margin-top:8px;  
+  }  
+  
+  .ganador select {  
+    padding:6px 8px;  
+    border-radius:6px;  
+    background:#3a3a3a;  
+    border:1px solid #555;  
+    color:#fff;  
+  }  
+  
+  /* ░░░ BLOQUEO ░░░ */  
+  .locked {  
+    opacity:0.6;  
+    pointer-events:none;  
+  }  
+  
+  .locked .ganador {  
+    pointer-events:auto;  
+    opacity:1;  
+  } 
+    
+  .live-indicator{  
+  color:#ff3b3b;  
+  font-weight:bold;  
+  animation:parpadeo 1s infinite;  
+}  
+  
+@keyframes parpadeo{  
+  0%{opacity:1;}  
+  50%{opacity:0.3;}  
+  100%{opacity:1;}  
+}  
+    
+  /* 🏈 CAMPO */
+.campo{
+  position:relative;
+  width:100%;
+  height:50px;
+  background:linear-gradient(to right,#0b6623,#0f7a2f);
+  border-radius:8px;
+  overflow:hidden;
+  border:2px solid #fff;
+}
+
+/* líneas de yardas */
+.campo::before{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:repeating-linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 9%,
+    rgba(255,255,255,0.3) 10%
+  );
+}
+
+/* 🏈 balón */
+.balon{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:14px;
+  height:14px;
+  background:#8b4513;
+  border-radius:50%;
+  border:1px solid #fff;
+  left:50%;
+}
+  
+  /* 🤝 Animación del empate */
+.emojiEmpate{
+    animation: empateAnim 1.4s infinite ease-in-out;
+}
+
+@keyframes empateAnim{
+
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+    50%{
+        transform:scale(1.25);
+        opacity:.7;
+    }
+
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+}
+  
+  /* 🥇 Logo ganador */
+.logoGanador{
+    filter:
+        drop-shadow(0 0 5px gold)
+        drop-shadow(0 0 10px gold)
+        drop-shadow(0 0 16px gold);
+}
+
+/* 🤝 Logos empate */
+.logoEmpate{
+    filter:
+        drop-shadow(0 0 5px silver)
+        drop-shadow(0 0 10px silver)
+        drop-shadow(0 0 16px silver);
+}
+  
+  .menuPanel{
+
+    position:absolute;
+
+    top:0px;
+
+    right:0px;
+
+    width:220px;
+
+    background:#2b2b2b;
+
+    border:1px solid #555;
+
+    border-radius:12px;
+
+    display:none;
+    
+    opacity:0;
+transform:translateY(-15px);
+transition:opacity .25s ease, transform .25s ease;
+pointer-events:none;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    padding:12px;
+
+    z-index:999;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+
+}
+
+.menuPanel button,
+.menuPanel select{
+
+    width:100%;
+    padding:10px;
+
+    background:#2b2b2b;      /* Gris Oxford */
+
+    color:#fff;
+
+    border:1px solid #555;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    font-size:14px;
+
+}
+  .menuPanel button:hover,
+.menuPanel select:hover{
+
+    background:#3a3a3a;
+
+    border-color:#777;
+
+}
+
+.menuPanel.abierto{
+
+    display:flex;
+
+    opacity:1;
+
+    transform:translateY(0);
+
+    pointer-events:auto;
+
+}
+  /* ===========================
+   CONFERENCIAS
+=========================== */
+
+.conferencias{
+    display:flex;
+    justify-content:center;
+    gap:35px;
+    flex-wrap:wrap;
+    margin-top:30px;
+}
+
+.btnConferencia{
+    background:#2b2b2b;
+    border:2px solid #555;
+    border-radius:18px;
+    width:250px;
+    padding:20px;
+    cursor:pointer;
+    transition:.25s;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,.35);
+}
+
+.btnConferencia:hover{
+    transform:scale(1.05);
+}
+
+.btnConferencia img{
+    width:170px;
+    height:auto;
+}
+
+.btnConferencia h2{
+    margin:15px 0 5px;
+    color:white;
+}
+
+.btnConferencia p{
+    color:#bdbdbd;
+    margin:0;
+}
+
+.afc:hover{
+    box-shadow:0 0 18px #d50a0a;
+    border-color:#d50a0a;
+}
+
+.nfc:hover{
+    box-shadow:0 0 18px #013369;
+    border-color:#013369;
+}
+  
+</style> </head>  <body>  <header>  
+  <div class="left">  
+    <img class="nfl" src="https://upload.wikimedia.org/wikipedia/en/a/a2/National_Football_League_logo.svg" />  
+    <strong style="font-size:18px">Picks Semanal</strong>  
+  </div>  
+  <div class="right">
+
+    <span class="aciertos" id="aciertos">
+        🏆 0/0
+    </span>
+
+    <button id="menuBtn">
+        ☰
+    </button>
+</div>  
+</header> 
+  <div id="menuPanel" class="menuPanel">
+
+    <select id="semana"></select>
+
+    <button id="btnVista" onclick="cambiarVista()">
+    ⚡ Tiempo real
+</button>
+
+    <button id="descargarImg">
+        ⬇ Descargar imagen
+    </button>
+
+    <button id="bloquearBtn" onclick="bloquear()">
+        🔒 Bloquear
+    </button>
+
+    <button onclick="reiniciar()">
+        🔄 Reiniciar
+    </button>
+<button onclick="reiniciarTemporada()">
+🔄 Reiniciar temporada
+</button>
+    <button id="btnPosiciones" onclick="mostrarPosiciones()">
+🏈 Posiciones
+</button>
+</div>
+  <main id="contenedor"></main> 
+<div id="vistaTiempoReal" style="display:none; padding:10px;"></div>
+  <div id="vistaPosiciones" style="display:none; padding:10px;"></div>
+  <script>  /* --------------------
+Datos iniciales
+-------------------- */
+
+let bloqueo = JSON.parse(localStorage.getItem("bloqueo")) || false;
+
+const contenedor = document.getElementById("contenedor");
+const semanaSelect = document.getElementById("semana");
+const aciertosDisplay = document.getElementById("aciertos");
+let totalJuegosSemana = 0;
+/* semanas */
+for(let s=1;s<=18;s++){
+const o=document.createElement("option");
+o.value=s;
+o.textContent="Semana "+s;
+semanaSelect.appendChild(o);
+}
+
+semanaSelect.value = localStorage.getItem("semanaActual") || 1;
+semanaSelect.addEventListener("change", () => {
+
+  localStorage.setItem("semanaActual", semanaSelect.value);
+
+  crearJuegos();
+  ponerEquiposReales();
+  calcularAciertos();
+
+  // 🔥 AGREGAR ESTO
+  if(vistaActual === "live"){
+    cargarVistaTiempoReal();
+  }
+
+});
+  
+/* --------------------
+CREAR JUEGOS
+-------------------- */
+
+function crearJuegos(){
+
+contenedor.innerHTML="";
+
+const semana = semanaSelect.value;
+const guardado = JSON.parse(localStorage.getItem("semana"+semana)) || [];
+
+for(let i=1;i<=16;i++){
+
+const juego=document.createElement("div");  
+juego.className="juego";  
+
+juego.innerHTML=`  
+<div style="font-weight:700">Juego ${i}</div>  
+
+<div class="equipos">  
+
+  <div class="equipo visitante">  
+    <div class="nombre-equipo"></div>  
+  </div>  
+
+  <div style="font-weight:700;color:#aaa">VS</div>  
+
+  <div class="equipo local">  
+    <div class="nombre-equipo"></div>  
+  </div>  
+
+</div>  
+
+<div class="botones">  
+  <button class="btnVisitante">Visitante</button>  
+  <button class="btnEmpate">Empate</button>  
+  <button class="btnLocal">Local</button>
+  
+</div>  
+
+<div class="marcador" style="text-align:center;margin-top:4px;">-</div>  
+
+<div class="drive" style="text-align:center;font-size:12px;color:#aaa"></div>  
+
+<div class="ganador">
+  <div class="estadoJuego" style="text-align:center">
+
+  <div class="tituloEstado" style="font-size:13px;color:#bbb;">
+    Posesión
+  </div>
+
+  <div class="logosEstado"
+       style="display:flex;justify-content:center;align-items:center;gap:8px;margin:6px 0;">
+
+    <img class="logoEstado1"
+         src=""
+         style="width:60px;height:60px;display:none;">
+
+    <span class="emojiEmpate"
+          style="display:none;font-size:24px;">
+      🤝
+    </span>
+
+    <img class="logoEstado2"
+         src=""
+         style="width:60px;height:60px;display:none;">
+
+  </div>
+
+  <div class="nombreEstado"
+       style="font-weight:bold;font-size:15px;">
+  </div>
+
+</div>
+</div>
+`;  
+
+contenedor.appendChild(juego);  
+
+const btnVis=juego.querySelector(".btnVisitante");  
+const btnLoc=juego.querySelector(".btnLocal");  
+const btnEmp=juego.querySelector(".btnEmpate");  
+console.log("Botones juego", i, btnLoc, btnVis, btnEmp);
+
+const datos = guardado[i-1] || {};  
+
+if(datos.pick){  
+
+  if(datos.pick==="Local") btnLoc.classList.add("activo");  
+  if(datos.pick==="Visitante") btnVis.classList.add("activo");  
+  if(datos.pick==="Empate") btnEmp.classList.add("activo");  
+
+}  
+
+function guardarPick(p){  
+
+  const dataSemana = JSON.parse(localStorage.getItem("semana"+semana)) || [];  
+
+  dataSemana[i-1] = {  
+
+    ...dataSemana[i-1],  
+    pick:p  
+
+  };  
+
+  localStorage.setItem("semana"+semana,JSON.stringify(dataSemana));  
+
+  calcularAciertos();  
+
+}  
+
+btnLoc.addEventListener("click", () => {
+  if(!bloqueo){
+    guardarPick("Local");
+    btnLoc.classList.add("activo");
+    btnVis.classList.remove("activo");
+    btnEmp.classList.remove("activo");
+  }
+});
+
+btnVis.addEventListener("click", () => {
+  if(!bloqueo){
+    guardarPick("Visitante");
+    btnVis.classList.add("activo");
+    btnLoc.classList.remove("activo");
+    btnEmp.classList.remove("activo");
+  }
+});
+
+btnEmp.addEventListener("click", () => {
+  if(!bloqueo){
+    guardarPick("Empate");
+    btnEmp.classList.add("activo");
+    btnVis.classList.remove("activo");
+    btnLoc.classList.remove("activo");
+  }
+});
+  
+
+
+}
+
+}
+
+/* --------------------
+CALCULAR ACIERTOS
+-------------------- */
+
+function calcularAciertos() {
+  const semana = semanaSelect.value;
+  const datos = JSON.parse(localStorage.getItem("semana" + semana)) || [];
+
+  let aciertos = 0;
+
+  datos.forEach(j => {
+    if (!j) return;
+
+    // ✅ Solo contar 1 acierto por juego
+    if (j.pick && j.ganador) {
+      // Si el pick coincide con el ganador, suma 1
+      if (j.pick === j.ganador) {
+        aciertos++;
+      }
+    }
+  });
+
+  // Actualizar display
+  aciertosDisplay.textContent = `🏆 ${aciertos}/${totalJuegosSemana}`;
+}
+
+/* --------------------
+ESPN API
+-------------------- */
+
+async function obtenerJuegosSemana(){
+
+  try{
+
+    const yearActual = new Date().getFullYear();
+
+    const res = await fetch(
+      "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&year=" + yearActual + "&week=" + semanaSelect.value
+    );
+
+    const data = await res.json();
+
+    return data.events;
+
+  }catch(e){
+
+    console.log("Error ESPN", e);
+
+    return [];
+
+  }
+
+}
+
+async function obtenerDrive(id){
+
+try{
+
+const res = await fetch(  
+"https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event="+id  
+);  
+
+const data = await res.json();  
+
+return data;
+
+}catch(e){
+
+return null;
+
+}
+
+}
+
+/* --------------------
+CARGAR JUEGOS ESPN
+-------------------- */
+
+async function ponerEquiposReales() {
+
+  const juegosESPN = await obtenerJuegosSemana();
+  totalJuegosSemana = juegosESPN.length;
+  const juegosPagina = document.querySelectorAll(".juego");
+  const semana = semanaSelect.value;
+  const dataSemana = JSON.parse(localStorage.getItem("semana" + semana)) || [];
+
+  // Reiniciar posiciones antes de volver a calcularlas
+for(const equipo in posicionesNFL){
+
+    posicionesNFL[equipo].G = 0;
+    posicionesNFL[equipo].P = 0;
+    posicionesNFL[equipo].E = 0;
+    posicionesNFL[equipo].porcentaje = 0;
+
+}
+  
+  juegosESPN.forEach(async (evento, i) => {
+    if (!juegosPagina[i]) return;
+
+    const comp = evento.competitions[0];
+    const local = comp.competitors.find(t => t.homeAway === "home");
+    const visitante = comp.competitors.find(t => t.homeAway === "away");
+
+    const visDiv = juegosPagina[i].querySelector(".visitante .nombre-equipo");
+    const locDiv = juegosPagina[i].querySelector(".local .nombre-equipo");
+    const marcador = juegosPagina[i].querySelector(".marcador");
+    const driveDiv = juegosPagina[i].querySelector(".drive");
+    const tituloEstado = juegosPagina[i].querySelector(".tituloEstado");
+    const logoEstado1 = juegosPagina[i].querySelector(".logoEstado1");
+    const logoEstado2 = juegosPagina[i].querySelector(".logoEstado2");
+    const emojiEmpate = juegosPagina[i].querySelector(".emojiEmpate");
+    const nombreEstado = juegosPagina[i].querySelector(".nombreEstado");
+    logoEstado1.classList.remove("logoGanador","logoEmpate");
+    logoEstado2.classList.remove("logoGanador","logoEmpate");
+    // ─── Actualizar logos SIN tocar botones ───
+    let imgVis = visDiv.querySelector("img");
+    if (!imgVis) {
+      imgVis = document.createElement("img");
+      imgVis.className = "logo";
+      imgVis.width = 64;
+      visDiv.appendChild(imgVis);
+    }
+    imgVis.src = visitante.team.abbreviation + ".png";
+
+let imgLoc = locDiv.querySelector("img");
+if (!imgLoc) {
+  imgLoc = document.createElement("img");
+  imgLoc.className = "logo";
+  imgLoc.width = 64;
+  locDiv.appendChild(imgLoc);
+}
+imgLoc.src = local.team.abbreviation + ".png";
+
+    // ─── Actualizar marcador y estado ───
+    const scoreVis = Number(visitante.score) || 0;
+    const scoreLoc = Number(local.score) || 0;
+    const estado = comp.status.type.description;
+    const reloj = comp.status.displayClock;
+    const periodo = comp.status.period;
+    const possession = comp.situation?.possession || "";
+if (comp.status.type.completed) {
+
+  tituloEstado.textContent = "Ganador real";
+
+  if (scoreLoc > scoreVis) {
+
+    logoEstado1.src = local.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+    logoEstado1.classList.add("logoGanador")
+    
+    logoEstado2.style.display = "none";
+    emojiEmpate.style.display = "none";
+
+    nombreEstado.textContent = local.team.displayName;
+
+  } else if (scoreVis > scoreLoc) {
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+     logoEstado1.classList.add("logoGanador")
+    
+    logoEstado2.style.display = "none";
+    emojiEmpate.style.display = "none";
+
+    nombreEstado.textContent = visitante.team.displayName;
+
+  } else {
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado2.src = local.team.abbreviation + ".png";
+
+    logoEstado1.style.display = "block";
+    logoEstado2.style.display = "block";
+    logoEstado1.classList.add("logoEmpate");
+    logoEstado2.classList.add("logoEmpate");
+    
+    emojiEmpate.style.display = "inline";
+
+    nombreEstado.textContent = "Empate";
+
+  }
+
+} else {
+
+  tituloEstado.textContent = "Posesión";
+
+  logoEstado2.style.display = "none";
+  emojiEmpate.style.display = "none";
+
+  if (possession === local.team.id || possession === local.team.abbreviation) {
+
+    logoEstado1.src = local.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+    nombreEstado.textContent = local.team.displayName;
+
+  } else if (possession === visitante.team.id || possession === visitante.team.abbreviation) {
+
+    logoEstado1.src = visitante.team.abbreviation + ".png";
+    logoEstado1.style.display = "block";
+    nombreEstado.textContent = visitante.team.displayName;
+
+  } else {
+
+    logoEstado1.style.display = "none";
+    nombreEstado.textContent = "";
+
+  }
+
+}
+
+    let live = "";
+    if (comp.status.type.state === "in") {
+      live = '<span class="live-indicator">🔴 LIVE</span>';
+    }
+
+    marcador.innerHTML = `
+      ${live}
+      ${visitante.team.abbreviation} ${scoreVis} - ${scoreLoc} ${local.team.abbreviation}
+      <br>Q${periodo} • ${reloj}
+    `;
+
+    // ─── PARTIDO FINAL ───
+    if (comp.status.type.completed) {
+      let ganador = "";
+      if (scoreLoc > scoreVis) ganador = "Local";
+      else if (scoreVis > scoreLoc) ganador = "Visitante";
+      else ganador = "Empate"; // ← ahora el empate se reconoce
+
+      // Actualizar récord de los equipos
+
+if(scoreLoc > scoreVis){
+
+    posicionesNFL[local.team.abbreviation].G++;
+    posicionesNFL[visitante.team.abbreviation].P++;
+
+}else if(scoreVis > scoreLoc){
+
+    posicionesNFL[visitante.team.abbreviation].G++;
+    posicionesNFL[local.team.abbreviation].P++;
+
+}else{
+
+    posicionesNFL[local.team.abbreviation].E++;
+    posicionesNFL[visitante.team.abbreviation].E++;
+
+}
+      // Calcular porcentaje
+
+[local.team.abbreviation, visitante.team.abbreviation].forEach(sigla=>{
+
+    const t = posicionesNFL[sigla];
+
+    const juegos = t.G + t.P + t.E;
+
+    if(juegos > 0){
+
+        t.porcentaje = ((t.G + (t.E * 0.5)) / juegos);
+
+    }
+
+});
+      
+      dataSemana[i] = {
+        ...dataSemana[i],
+        local: local.team.abbreviation,
+        visitante: visitante.team.abbreviation,
+        ganador: ganador
+      };
+      localStorage.setItem("semana" + semana, JSON.stringify(dataSemana));
+      calcularAciertos();
+
+      marcador.innerHTML += "<br><strong>Final</strong>";
+    }
+
+    // ─── Mostrar drive en vivo si existe ───
+    const resumen = await obtenerDrive(evento.id);
+    if (resumen && resumen.drives && resumen.drives.current) {
+      const drive = resumen.drives.current;
+      const equipo = drive.team?.abbreviation || "";
+      const down = drive.start?.downDistanceText || "";
+      driveDiv.innerHTML = `🏈 ${equipo} ball<br>${down}`;
+    }
+
+  });
+}
+
+/* --------------------
+BLOQUEO
+-------------------- */
+
+function aplicarBloqueo(){
+
+  document.querySelectorAll(".juego").forEach(j=>{
+
+    if(bloqueo){  
+      j.classList.add("locked");  
+    }else{  
+      j.classList.remove("locked");  
+    }
+
+  });
+
+  // 🔥 sincronizar botón SIEMPRE
+  const btn = document.getElementById("bloquearBtn");
+
+  if(bloqueo){
+    btn.textContent = "Desbloquear";
+    btn.style.opacity = 0.6;
+  }else{
+    btn.textContent = "Bloquear";
+    btn.style.opacity = 1;
+  }
+}
+  
+function reiniciar() {
+  const semana = semanaSelect.value;
+
+  bloqueo = false;
+
+  // 🔥 limpiar datos
+  localStorage.removeItem("semana"+semana);
+  localStorage.removeItem("bloqueo");
+
+  crearJuegos();
+  ponerEquiposReales();
+  calcularAciertos();
+  aplicarBloqueo();
+
+  // 🔥 REACTIVAR BOTÓN
+  const btn = document.getElementById("bloquearBtn");
+
+btn.disabled = false;
+btn.style.opacity = 1;
+btn.style.cursor = "pointer";
+btn.textContent = "Bloquear";
+}
+  
+function bloquear() {
+  bloqueo = true; // 🔥 SIEMPRE se bloquea
+
+  localStorage.setItem("bloqueo", JSON.stringify(bloqueo));
+
+  aplicarBloqueo();
+
+  const btn = document.getElementById("bloquearBtn");
+
+  // 🔒 desactivar botón para que no se vuelva a usar
+  btn.disabled = true;
+  btn.style.opacity = 0.6;
+  btn.style.cursor = "not-allowed";
+  btn.textContent = "Bloqueado";
+}
+
+let vistaActual = "picks";
+
+function cambiarVista(){
+
+  const picks = document.getElementById("contenedor");
+  const live = document.getElementById("vistaTiempoReal");
+  const btn = document.getElementById("btnVista");
+
+  if(vistaActual === "picks"){
+
+    picks.style.display = "none";
+    live.style.display = "block";
+cargarVistaTiempoReal();
+    btn.textContent = "Ver Picks";
+document.getElementById("btnPosiciones").textContent = "🏈 Posiciones";
+    vistaActual = "live";
+
+  }else{
+
+    picks.style.display = "block";
+    live.style.display = "none";
+
+    btn.textContent = "Modo tiempo real";
+    document.getElementById("btnPosiciones").textContent = "🏈 Posiciones";
+    vistaActual = "picks";
+  }
+}
+  
+  function mostrarPosiciones(){
+
+    const picks = document.getElementById("contenedor");
+    const live = document.getElementById("vistaTiempoReal");
+    const posiciones = document.getElementById("vistaPosiciones");
+    if(vistaActual === "posiciones"){
+
+    posiciones.style.display = "none";
+    picks.style.display = "block";
+
+    document.getElementById("btnPosiciones").textContent = "🏈 Posiciones";
+
+    vistaActual = "picks";
+
+    return;
+}
+    picks.style.display = "none";
+    live.style.display = "none";
+    posiciones.style.display = "block";
+
+   posiciones.innerHTML = `
+<h2 style="text-align:center;margin-bottom:30px;">
+    Selecciona una conferencia
+</h2>
+
+<div class="conferencias">
+
+    <div class="btnConferencia afc" onclick="abrirConferencia('AFC')">
+
+        <img src="afc.png">
+
+        <h2>American Football Conference</h2>
+
+        <p>Ver posiciones</p>
+
+    </div>
+
+    <div class="btnConferencia nfc" onclick="abrirConferencia('NFC')">
+
+        <img src="nfc.png">
+
+        <h2>National Football Conference</h2>
+
+        <p>Ver posiciones</p>
+
+    </div>
+
+</div>
+`;
+    
+
+
+    document.getElementById("btnPosiciones").textContent = "← Ver Picks";
+
+vistaActual = "posiciones";
+}
+
+  const equiposNFL = {
+
+AFC:{
+
+"Este":[
+["BUF","Bills"],
+["MIA","Dolphins"],
+["NE","Patriots"],
+["NYJ","Jets"]
+],
+
+"Norte":[
+["BAL","Ravens"],
+["CIN","Bengals"],
+["CLE","Browns"],
+["PIT","Steelers"]
+],
+
+"Sur":[
+["HOU","Texans"],
+["IND","Colts"],
+["JAX","Jaguars"],
+["TEN","Titans"]
+],
+
+"Oeste":[
+["DEN","Broncos"],
+["KC","Chiefs"],
+["LV","Raiders"],
+["LAC","Chargers"]
+]
+
+},
+
+NFC:{
+
+"Este":[
+["DAL","Cowboys"],
+["NYG","Giants"],
+["PHI","Eagles"],
+["WSH","Commanders"]
+],
+
+"Norte":[
+["CHI","Bears"],
+["DET","Lions"],
+["GB","Packers"],
+["MIN","Vikings"]
+],
+
+"Sur":[
+["ATL","Falcons"],
+["CAR","Panthers"],
+["NO","Saints"],
+["TB","Buccaneers"]
+],
+
+"Oeste":[
+["ARI","Cardinals"],
+["LAR","Rams"],
+["SF","49ers"],
+["SEA","Seahawks"]
+]
+
+}
+
+};
+  
+  // posisciones NFL //
+
+  
+  const posicionesNFL = {};
+
+for(const conferencia in equiposNFL){
+
+    for(const division in equiposNFL[conferencia]){
+
+        equiposNFL[conferencia][division].forEach(equipo=>{
+
+            posicionesNFL[equipo[0]] = {
+
+                G:0,
+                P:0,
+                E:0,
+                porcentaje:0
+
+            };
+
+        });
+
+    }
+
+}
+  
+  function actualizarPosicionesNFL(){
+
+    // Reiniciar estadísticas
+    for(const equipo in posicionesNFL){
+
+        posicionesNFL[equipo].G = 0;
+        posicionesNFL[equipo].P = 0;
+        posicionesNFL[equipo].E = 0;
+        posicionesNFL[equipo].porcentaje = 0;
+
+    }
+
+    // Revisar las 18 semanas
+    for(let semana=1; semana<=18; semana++){
+
+        const juegos = JSON.parse(localStorage.getItem("semana"+semana)) || [];
+
+        juegos.forEach(juego=>{
+
+            if(!juego) return;
+            if(!juego.ganador) return;
+
+            if(juego.ganador==="Local"){
+
+                posicionesNFL[juego.local].G++;
+                posicionesNFL[juego.visitante].P++;
+
+            }
+
+            else if(juego.ganador==="Visitante"){
+
+                posicionesNFL[juego.visitante].G++;
+                posicionesNFL[juego.local].P++;
+
+            }
+
+            else{
+
+                posicionesNFL[juego.local].E++;
+                posicionesNFL[juego.visitante].E++;
+
+            }
+
+        });
+
+    }
+
+    // Calcular porcentaje
+    for(const equipo in posicionesNFL){
+
+        const datos = posicionesNFL[equipo];
+
+        const jugados =
+            datos.G +
+            datos.P +
+            datos.E;
+
+        if(jugados>0){
+
+            datos.porcentaje =
+                (datos.G + datos.E*0.5) / jugados;
+
+        }
+
+    }
+
+}
+  
+async function abrirConferencia(conferencia){
+
+    const posiciones = document.getElementById("vistaPosiciones");
+    actualizarPosicionesNFL();
+    
+     
+    
+    posiciones.innerHTML = `
+<button onclick="mostrarPosiciones()"
+style="
+margin-bottom:20px;
+background:#2b2b2b;
+color:white;
+border:1px solid #666;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+">
+← Regresar
+</button>
+
+<h2 style="text-align:center;margin-bottom:30px;">
+🏈 ${conferencia}
+</h2>
+
+<div id="contenedorDivisiones"></div>
+`;
+
+    const contenedor = document.getElementById("contenedorDivisiones");
+
+for(const division in equiposNFL[conferencia]){
+
+    contenedor.innerHTML += `
+
+    <div
+    style="
+    background:#2b2b2b;
+    border-left:6px solid #666;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow:0 0 10px rgba(0,0,0,.35);
+    ">
+
+    <h3>${division}</h3>
+
+    <div id="division-${division}"></div>
+
+    </div>
+
+    `;
+
+    const lista = document.getElementById("division-"+division);
+lista.innerHTML = `
+<div style="
+display:grid;
+grid-template-columns:2.6fr .6fr .6fr .6fr .8fr;
+font-weight:bold;
+padding-bottom:10px;
+border-bottom:2px solid #666;
+margin-bottom:8px;
+text-align:center;
+">
+
+<div style="text-align:left;">Equipo</div>
+<div>G</div>
+<div>P</div>
+<div>E</div>
+<div>%</div>
+
+</div>
+`;
+    const equiposOrdenados = [...equiposNFL[conferencia][division]];
+
+equiposOrdenados.sort((a,b)=>{
+
+    return posicionesNFL[b[0]].porcentaje - posicionesNFL[a[0]].porcentaje;
+
+});
+
+equiposOrdenados.forEach(equipo=>{
+      
+      const datos = posicionesNFL[equipo[0]];
+      
+        lista.innerHTML += `
+<div style="
+display:grid;
+grid-template-columns:2.6fr .6fr .6fr .6fr .8fr;
+align-items:center;
+padding:8px 0;
+border-bottom:1px solid #444;
+">
+
+<div style="
+display:flex;
+align-items:center;
+gap:10px;
+">
+
+<img
+src="${equipo[0]}.png"
+style="width:38px;height:38px;object-fit:contain;">
+
+<span>${equipo[1]}</span>
+
+</div>
+
+<div style="text-align:center;">${datos.G}</div>
+
+<div style="text-align:center;">${datos.P}</div>
+
+<div style="text-align:center;">${datos.E}</div>
+
+<div style="text-align:center;">${datos.porcentaje.toFixed(3).substring(1)}
+ </div>
+`;
+
+    });
+
+}
+  
+}
+  
+  function crearCampo(yarda, idJuego, firstDown = null){
+
+  const pos = (yarda / 100) * 100;
+
+  const posFirst = firstDown !== null ? (firstDown / 100) * 100 : null;
+
+  return `
+    <div style="position:relative;width:100%;height:100px;background:#0a5c2f;border-radius:6px;overflow:hidden">
+
+      <!-- líneas + números -->
+${[10,20,30,40,50,40,30,20,10].map((num, index)=>`
+  
+  <!-- línea -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:rgba(255,255,255,0.25);
+  "></div>
+
+  <!-- número arriba -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    top:4px;
+    transform:translateX(-50%);
+    font-size:10px;
+    color:rgba(255,255,255,0.45);
+    font-weight:bold;
+  ">
+    ${num}
+  </div>
+
+    
+    
+  <!-- número abajo -->
+  <div style="
+    position:absolute;
+    left:${(index+1)*10}%;
+    bottom:4px;
+    transform:translateX(-50%) rotate(180deg);
+    font-size:10px;
+    color:rgba(255,255,255,0.45);
+    font-weight:bold;
+  ">
+    ${num}
+  </div>
+`).join("")}
+
+    <!-- líneas pequeñas -->
+${Array.from({length:99}, (_,i)=>i+1).map(y=>`
+
+  ${y % 10 !== 0 ? `
+
+    <!-- línea arriba -->
+    <div style="
+      position:absolute;
+      left:${y}%;
+      top:0;
+
+      width:${y % 5 === 0 ? "2px" : "1px"};
+
+      height:${y % 5 === 0 ? "78px" : "12px"};
+
+      background:rgba(255,255,255,${y % 5 === 0 ? "0.35" : "0.18"});
+    "></div>
+
+    <!-- línea abajo -->
+    <div style="
+      position:absolute;
+      left:${y}%;
+      bottom:0;
+
+      width:${y % 5 === 0 ? "2px" : "1px"};
+
+      height:${y % 5 === 0 ? "22px" : "12px"};
+
+      background:rgba(255,255,255,${y % 5 === 0 ? "0.35" : "0.18"});
+    "></div>
+
+  ` : ""}
+
+`).join("")}
+    
+      <!-- 🔵 línea de scrimmage -->
+      <div id="scrimmage-${idJuego}" style="
+        position:absolute;
+        left:${pos}%;
+        top:0;
+        bottom:0;
+        width:1.5px;
+        background:#00aaff;
+        box-shadow:0 0 6px #00aaff;
+      "></div>
+
+      <!-- 🟡 línea de first down -->
+      ${firstDown !== null ? `
+        <div id="first-${idJuego}" style="
+          position:absolute;
+          left:${posFirst}%;
+          top:0;
+          bottom:0;
+          width:1.5px;
+          background:yellow;
+          box-shadow:0 0 6px yellow;
+        "></div>
+      ` : ""}
+
+      <!-- 🏈 balón -->
+      <div id="balon-${idJuego}" style="
+        position:absolute;
+        left:${pos}%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        transition:left 0.6s ease;
+        font-size:18px;
+      ">🏈</div>
+
+    </div>
+  `;
+}
+  
+  async function cargarVistaTiempoReal(){
+
+  const vista = document.getElementById("vistaTiempoReal");
+
+  vista.innerHTML = "<h2>Tiempo Real</h2>";
+
+ const juegos = await obtenerJuegosSemana();
+
+  juegos.forEach((game, i)=>{
+
+  const comp = game.competitions[0];
+  const situ = comp.situation || {};
+  let firstDownYard = null;
+
+if(situ.downDistanceText){
+  const partes = situ.downDistanceText.split("&");
+  
+  if(partes.length > 1){
+    const distancia = parseInt(partes[1]);
+    
+    if(!isNaN(distancia)){
+      firstDownYard = (situ.yardLine || 50) + distancia;
+    }
+  }
+}
+  const down = situ.downDistanceText || "";
+  const equipo = situ.possession || "";
+  const yard = situ.yardLine || 50;
+const possession = situ.possession || "";
+
+// detectar equipos
+const compo = game.competitions[0];
+const local = compo.competitors.find(t => t.homeAway === "home");
+const visitante = compo.competitors.find(t => t.homeAway === "away");
+
+// invertir si el balón es del visitante
+let yardaFinal = yard;
+
+
+
+  // 🔄 Si ya existe → mover balón
+  if(document.getElementById(`balon-${i}`)){
+
+  moverBalon(i, yardaFinal);
+
+  // 🔵 mover línea de scrimmage
+  const scrimmage = document.getElementById(`scrimmage-${i}`);
+  if(scrimmage){
+    scrimmage.style.left = (yardaFinal) + "%";
+  }
+
+  // 🟡 mover línea de first down
+  const first = document.getElementById(`first-${i}`);
+  if(first && firstDownYard !== null){
+    first.style.left = (firstDownYard) + "%";
+  }
+
+  return;
+}
+
+  // 🆕 Si no existe → crear campo
+  vista.innerHTML += `
+  <div class="juego">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+
+      <div style="text-align:center">
+        <img src="${visitante.team.abbreviation}.png" width="60">
+        <div style="font-size:11px;color:${possession === visitante.team.abbreviation ? '#0f0' : '#aaa'}">
+          ${possession === visitante.team.abbreviation ? "🏈" : ""}
+        </div>
+      </div>
+
+      <div style="font-weight:700">${game.shortName.replace("@", "   vs   ")}</div>
+
+      <div style="text-align:center">
+        <img src="${local.team.abbreviation}.png" width="60">
+        <div style="font-size:11px;color:${possession === local.team.abbreviation ? '#0f0' : '#aaa'}">
+          ${possession === local.team.abbreviation ? "🏈" : ""}
+        </div>
+      </div>
+
+    </div>
+
+    ${crearCampo(yardaFinal, i, firstDownYard)}
+
+    <div style="text-align:center;font-size:12px;color:#aaa">
+      ${situ.downDistanceText || ""}
+    </div>
+
+  </div>
+`;
+});
+}
+  
+  function moverBalon(idJuego, nuevaYarda){
+
+  const balon = document.getElementById(`balon-${idJuego}`);
+  if(!balon) return;
+
+  const nuevaPos = (nuevaYarda / 100) * 100;
+
+  balon.style.transition = "left 0.6s ease"; // 🔥 animación suave
+  balon.style.left = nuevaPos + "%";
+}
+  
+  function reiniciarTemporada(){
+
+    const confirmar = confirm(
+        "Esto borrará todos los datos guardados de la temporada.\n\n¿Deseas continuar?"
+    );
+
+    if(!confirmar) return;
+
+    for(let semana=1; semana<=18; semana++){
+
+        localStorage.removeItem("semana"+semana);
+
+    }
+
+    alert("Temporada reiniciada correctamente.");
+
+    location.reload();
+
+}
+  
+  
+  
+/* --------------------
+INICIO
+-------------------- */
+  
+crearJuegos();
+
+ponerEquiposReales();
+
+setInterval(ponerEquiposReales,30000);
+
+calcularAciertos();
+
+aplicarBloqueo();
+  
+
+// --------------------
+// DESCARGAR IMAGEN
+// --------------------
+document.getElementById("descargarImg").addEventListener("click", () => {
+  html2canvas(document.querySelector("main")).then(canvas => {
+    const link = document.createElement("a");
+    link.download = `picks_semana${semanaSelect.value}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+});
+    
+  const menuBtn = document.getElementById("menuBtn");
+const menuPanel = document.getElementById("menuPanel");
+
+menuBtn.onclick = () => {
+
+    if(menuPanel.classList.contains("abierto")){
+
+        menuPanel.classList.remove("abierto");
+
+        setTimeout(()=>{
+            menuPanel.style.display="none";
+        },250);
+
+        return;
+    }
+
+    // Posición del botón ☰ en la pantalla
+    const rect = menuBtn.getBoundingClientRect();
+
+    menuPanel.style.left = (rect.right - 220) + "px";
+    menuPanel.style.top = (rect.bottom + 8 + window.scrollY) + "px";
+
+    menuPanel.style.display = "flex";
+
+    requestAnimationFrame(()=>{
+        menuPanel.classList.add("abierto");
+    });
+
+}
+
+
+  document.addEventListener("click", function(e){
+
+    // Si el menú está cerrado, no hacer nada
+    if(!menuPanel.classList.contains("abierto")) return;
+
+    // Si el clic fue dentro del menú o sobre el botón ☰, no cerrarlo
+    if(menuPanel.contains(e.target) || menuBtn.contains(e.target)) return;
+
+    // Si fue fuera, cerrar el menú
+    menuPanel.classList.remove("abierto");
+
+    setTimeout(()=>{
+        menuPanel.style.display = "none";
+    },250);
+
+});
+  
+</script>
+
+  <!-- html2canvas -->  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  </body>  
+</html>
