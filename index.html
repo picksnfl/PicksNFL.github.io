@@ -525,15 +525,16 @@ semanaSelect.appendChild(o);
 }
 
 semanaSelect.value = localStorage.getItem("semanaActual") || 1;
-semanaSelect.addEventListener("change", () => {
+semanaSelect.addEventListener("change", async () => {
 
   localStorage.setItem("semanaActual", semanaSelect.value);
 
   crearJuegos();
-  ponerEquiposReales();
+
+  await ponerEquiposReales();
+
   calcularAciertos();
 
-  // 🔥 AGREGAR ESTO
   if(vistaActual === "live"){
     cargarVistaTiempoReal();
   }
