@@ -468,11 +468,9 @@ pointer-events:none;
         🏆 0/0
     </span>
 
-    <button id="descargarImgHeader">
+    <button id="descargarImgHeader" disabled>
     📷 Compartir
-</button>
-    
- 
+    </button>
     
     <button id="menuBtn">
         ☰
@@ -991,6 +989,12 @@ function aplicarBloqueo(){
   // 🔥 sincronizar botón SIEMPRE
   const btn = document.getElementById("bloquearBtn");
 
+const compartirBtn = document.getElementById("descargarImgHeader");
+
+compartirBtn.disabled = !bloqueo;
+compartirBtn.style.opacity = bloqueo ? "1" : "0.5";
+compartirBtn.style.cursor = bloqueo ? "pointer" : "not-allowed";
+    
   if(bloqueo){
     btn.textContent = "Desbloquear";
     btn.style.opacity = 0.6;
