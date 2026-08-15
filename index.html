@@ -770,15 +770,76 @@ CARGAR JUEGOS ESPN
 -------------------- */
 
 async function ponerEquiposReales() {
-  const juegosESPN = await obtenerJuegosSemana();
+
+  let juegosESPN = await obtenerJuegosSemana();
+
+  const semana = semanaSelect.value;
+
+  // 🔒 Mantener el mismo orden de partidos durante toda la semana
+  const claveOrden = modoPretemporada
+    ? "ordenPretemporada"
+    : "ordenTemporada";
+
+  const clave = claveOrden + semana;
+
+  let ordenGuardado =
+    JSON.parse(localStorage.getItem(clave)) || [];
+
+  // Si todavía no tenemos un orden guardado,
+  // guardamos el orden inicial que entrega ESPN
+  if (ordenGuardado.length === 0) {
+
+    ordenGuardado = juegosESPN.map(evento => evento.id);
+
+    localStorage.setItem(
+      clave,
+      JSON.stringify(ordenGuardado)
+    );
+
+  } else {
+
+    // 🔄 Reordenar los juegos actuales según el orden original
+    const juegosOrdenados = [];
+
+    ordenGuardado.forEach(id => {
+
+      const juego = juegosESPN.find(evento => evento.id === id);
+
+      if (juego) {
+        juegosOrdenados.push(juego);
+      }
+
+    });
+
+    // Si ESPN añadió algún partido nuevo,
+    // lo ponemos al final
+    juegosESPN.forEach(evento => {
+
+      if (!ordenGuardado.includes(evento.id)) {
+
+        juegosOrdenados.push(evento);
+
+        ordenGuardado.push(evento.id);
+
+      }
+
+    });
+
+    juegosESPN = juegosOrdenados;
+
+    localStorage.setItem(
+      clave,
+      JSON.stringify(ordenGuardado)
+    );
+
+  }
+
   totalJuegosSemana = juegosESPN.length;
 
   if (modoPretemporada) {
     crearJuegos(juegosESPN.length);
-  }
-
+}
   const juegosPagina = document.querySelectorAll(".juego");
-  const semana = semanaSelect.value;
   const dataSemana = JSON.parse(localStorage.getItem("semana" + semana)) || [];
 
   // Reiniciar posiciones antes de volver a calcularlas
