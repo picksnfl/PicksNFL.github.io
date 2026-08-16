@@ -629,7 +629,7 @@ const btnLoc=juego.querySelector(".btnLocal");
 const btnEmp=juego.querySelector(".btnEmpate");  
 console.log("Botones juego", i, btnLoc, btnVis, btnEmp);
 
-const datos = guardado[i-1] || {};  
+ let datos = guardado[i-1] || {}; 
 
 if(datos.pick){  
 
@@ -639,23 +639,32 @@ if(datos.pick){
 
 }  
 
-function guardarPick(p){  
+function guardarPick(p){
 
-  const dataSemana = JSON.parse(localStorage.getItem("semana"+semana)) || [];  
+  const dataSemana =
+    JSON.parse(localStorage.getItem("semana"+semana)) || [];
 
-  dataSemana[i-1] = {  
+  const juegoGuardado = dataSemana[i-1] || {};
 
-    ...dataSemana[i-1],  
-    pick:p  
+  dataSemana[i-1] = {
 
-  };  
+    ...juegoGuardado,
 
-  localStorage.setItem("semana"+semana,JSON.stringify(dataSemana));  
+    pick: p,
 
-  calcularAciertos();  
+    local: juego.dataset.local || "",
+    visitante: juego.dataset.visitante || ""
 
-}  
+  };
 
+  localStorage.setItem(
+    "semana"+semana,
+    JSON.stringify(dataSemana)
+  );
+
+  calcularAciertos();
+
+}
 btnLoc.addEventListener("click", () => {
   if(!bloqueo){
     guardarPick("Local");
@@ -858,7 +867,12 @@ for(const equipo in posicionesNFL){
     const comp = evento.competitions[0];
     const local = comp.competitors.find(t => t.homeAway === "home");
     const visitante = comp.competitors.find(t => t.homeAway === "away");
+juegosPagina[i].dataset.local =
+  local.team.abbreviation;
 
+juegosPagina[i].dataset.visitante =
+  visitante.team.abbreviation;
+    
     const visDiv = juegosPagina[i].querySelector(".visitante .nombre-equipo");
     const locDiv = juegosPagina[i].querySelector(".local .nombre-equipo");
     const marcador = juegosPagina[i].querySelector(".marcador");
@@ -1759,7 +1773,7 @@ async function iniciarApp(){
 
 iniciarApp();
 
-setInterval(ponerEquiposReales,5000);
+setInterval(ponerEquiposReales,10000);
   
 
 // --------------------
